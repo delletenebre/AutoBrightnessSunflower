@@ -27,18 +27,25 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class APP extends Application {
+    public static boolean DEBUG = false;
+    public boolean isDEBUG() {
+        return DEBUG;
+    }
+
+    public static boolean TOAST = true;
+    public boolean isTOAST() {
+        return TOAST;
+    }
+
     private static APP instance = new APP();
     public static APP getInstance() {
         return instance;
     }
     public static APP getInstance(SharedPreferences settings) {
         setSettings(settings);
+        DEBUG = settings.getBoolean("is_debug", false);
+        TOAST = settings.getBoolean("is_toast", false);
         return instance;
-    }
-
-    public static final boolean DEBUG = true;
-    public boolean isDEBUG() {
-        return DEBUG;
     }
 
     private final String TAG = "Autobrightness GPS";
@@ -138,40 +145,49 @@ public class APP extends Application {
     }
 
     public void setSystemBrightness(Context context, Window window) {
-        int brightness = getSystemBrightness(context);
+        if (_settings.getBoolean("is_app_enabled", true)) {
+            int brightness = getSystemBrightness(context);
 
-        if (brightness > -1) {
-            String mode = getCurrentMode();
+            if (brightness > -1) {
+                String mode = getCurrentMode();
 
-            switch (mode) {
-                case "day":
-                    brightness = _settings.getInt("brightness_day", 50);
-                    break;
-                case "dusk":
-                    brightness = _settings.getInt("brightness_dusk", 50);
-                    break;
-                case "night":
-                    brightness = _settings.getInt("brightness_night", 50);
-                    break;
-                default:
-                    brightness = 50;
+                switch (mode) {
+                    case "day":
+                        brightness = _settings.getInt("brightness_day", 50);
+                        break;
+                    case "dusk":
+                        brightness = _settings.getInt("brightness_dusk", 50);
+                        break;
+                    case "night":
+                        brightness = _settings.getInt("brightness_night", 50);
+                        break;
+                    default:
+                        brightness = 50;
+                }
+
+                Settings.System.putInt(context.getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS, (int) (2.55f * brightness));
+
+                if (window != null) {
+                    WindowManager.LayoutParams lp = window.getAttributes();
+                    lp.screenBrightness = brightness / 100f;
+                    window.setAttributes(lp);
+                }
+
+                if (isTOAST()) {
+                    Toast.makeText(context,
+                            context.getString(R.string.toast_setted_brightness, brightness),
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                if (isDEBUG()) {
+                    Log.d(TAG, "System brightness set to " + String.valueOf(brightness) + "% ["
+                            + mode + "]");
+                }
+
+            } else if (isDEBUG()) {
+                Log.e(TAG, "Getting system brightness error");
             }
-
-            Settings.System.putInt(context.getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS, (int) (2.55f * brightness));
-
-            if (window != null) {
-                WindowManager.LayoutParams lp = window.getAttributes();
-                lp.screenBrightness = brightness / 100f;
-                window.setAttributes(lp);
-            }
-
-            if (DEBUG) {
-                Log.d(TAG, "System brightness set to " + String.valueOf(brightness) + "% ["
-                        + mode + "]");
-            }
-        } else if (DEBUG) {
-            Log.e(TAG, "Getting system brightness error");
         }
     }
 
@@ -254,6 +270,12 @@ public class APP extends Application {
 
                                             _settingEditor.apply();
 
+                                            if (isTOAST()) {
+                                                Toast.makeText(AQ.getContext(),
+                                                        AQ.getContext().getString(R.string.toast_sun_schedule_updated),
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+
                                             if (txtDay != null && txtDusk != null && txtNight != null) {
                                                 txtDay.setText(
                                                         AQ.getContext().getString(R.string.time_placeholder,
@@ -317,9 +339,11 @@ public class APP extends Application {
                                     button.setProgress(-1);
                                 }
 
-                                Toast.makeText(AQ.getContext(),
-                                        AQ.getContext().getString(R.string.toast_network_error),
-                                        Toast.LENGTH_LONG).show();
+                                if (isTOAST()) {
+                                    Toast.makeText(AQ.getContext(),
+                                            AQ.getContext().getString(R.string.toast_network_error),
+                                            Toast.LENGTH_LONG).show();
+                                }
                             }
                         }
                     });

@@ -1,20 +1,18 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- These settings headers are only used on tablets. -->
-
     <header
-        android:fragment="kg.delletenebre.autobrightnessgps.SettingsActivity$GeneralPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
+        android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$GeneralPreferenceFragment"
+        android:icon="@drawable/ic_settings_black_24dp"
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="kg.delletenebre.autobrightnessgps.SettingsActivity$NotificationPreferenceFragment"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/pref_header_notifications" />
+        android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$BrightnessPreferenceFragment"
+        android:icon="@drawable/ic_brightness_black_24dp"
+        android:title="@string/pref_header_brightness" />
 
     <header
-        android:fragment="kg.delletenebre.autobrightnessgps.SettingsActivity$DataSyncPreferenceFragment"
-        android:icon="@drawable/ic_sync_black_24dp"
-        android:title="@string/pref_header_data_sync" />
+        android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$SunSyncPreferenceFragment"
+        android:icon="@drawable/ic_time_black_24dp"
+        android:title="@string/pref_header_sun_sync" />
 
 </preference-headers>

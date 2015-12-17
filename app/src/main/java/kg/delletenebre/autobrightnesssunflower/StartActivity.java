@@ -96,6 +96,7 @@ public class StartActivity extends AppCompatActivity {
                     break;
             }
 
+
             mAPP.setSystemBrightness(mContext, getWindow());
         }
 
@@ -138,9 +139,11 @@ public class StartActivity extends AppCompatActivity {
 
                             btnUpdateLocation.setProgress(-1);
 
-                            Toast.makeText(AQ.getContext(),
-                                    getString(R.string.toast_network_error),
-                                    Toast.LENGTH_LONG).show();
+                            if (mAPP.isTOAST()) {
+                                Toast.makeText(AQ.getContext(),
+                                        getString(R.string.toast_network_error),
+                                        Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 });
@@ -336,9 +339,12 @@ public class StartActivity extends AppCompatActivity {
                             }
 
                             btnEnterLocation.setProgress(-1);
-                            Toast.makeText(AQ.getContext(),
-                                    getString(R.string.toast_something_wrong),
-                                    Toast.LENGTH_LONG).show();
+
+                            if (mAPP.isTOAST()) {
+                                Toast.makeText(AQ.getContext(),
+                                        getString(R.string.toast_something_wrong),
+                                        Toast.LENGTH_LONG).show();
+                            }
                         }
 
                     } else {
@@ -347,9 +353,12 @@ public class StartActivity extends AppCompatActivity {
                         }
 
                         btnEnterLocation.setProgress(-1);
-                        Toast.makeText(AQ.getContext(),
-                                getString(R.string.toast_network_error),
-                                Toast.LENGTH_LONG).show();
+
+                        if (mAPP.isTOAST()) {
+                            Toast.makeText(AQ.getContext(),
+                                    getString(R.string.toast_network_error),
+                                    Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             });

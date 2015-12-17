@@ -1,82 +1,21 @@
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <com.pavelsikun.seekbarpreference.SeekBarPreference
-        android:key="brightness_day"
-
-        android:title="@string/pref_title_brightness_day"
-        android:summary="@string/pref_description_brightness_day"
-        android:defaultValue="100"
-
-        app:msbp_minValue="10"
-        app:msbp_maxValue="100"
-        app:msbp_interval="1"
-        app:msbp_measurementUnit="%" />
-
-    <com.pavelsikun.seekbarpreference.SeekBarPreference
-        android:key="brightness_dusk"
-
-        android:title="@string/pref_title_brightness_dusk"
-        android:summary="@string/pref_description_brightness_dusk"
-        android:defaultValue="50"
-
-        app:msbp_minValue="1"
-        app:msbp_maxValue="100"
-        app:msbp_interval="1"
-        app:msbp_measurementUnit="%" />
-
-    <com.pavelsikun.seekbarpreference.SeekBarPreference
-        android:key="brightness_night"
-
-        android:title="@string/pref_title_brightness_night"
-        android:summary="@string/pref_description_brightness_night"
-        android:defaultValue="5"
-
-        app:msbp_minValue="1"
-        app:msbp_maxValue="100"
-        app:msbp_interval="1"
-        app:msbp_measurementUnit="%" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
         android:defaultValue="true"
-        android:key="brightness_live_update"
-        android:title="@string/pref_title_brightness_live_update"
-        android:summary="@string/pref_description_brightness_live_update" />
-
-    <ListPreference
-        android:key="brightness_live_update_interval"
-        android:dependency="brightness_live_update"
-        android:title="@string/pref_title_brightness_live_update_interval"
-        android:entries="@array/pref_brightness_live_update_interval_titles"
-        android:entryValues="@array/pref_brightness_live_update_interval_values"
-        android:defaultValue="10"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
+        android:key="is_app_enabled"
+        android:title="@string/pref_title_is_app_enabled"
+        android:summary="@string/pref_description_is_app_enabled" />
 
     <SwitchPreference
+        android:key="is_toast"
         android:defaultValue="true"
-        android:key="is_sun_schedule_update"
-        android:title="@string/pref_title_is_sun_schedule_update"
-        android:summary="@string/pref_description_is_sun_schedule_update" />
+        android:title="@string/pref_title_is_toasts"
+        android:summary="@string/pref_description_is_toasts" />
 
-    <ListPreference
-        android:key="interval_sun_schedule_update"
-        android:dependency="is_sun_schedule_update"
-        android:title="@string/pref_title_interval_sun_schedule_update"
-        android:entries="@array/pref_interval_sun_schedule_update_titles"
-        android:entryValues="@array/pref_interval_sun_schedule_update_values"
-        android:defaultValue="7"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
-
-    <EditTextPreference
-        android:key="interval_sun_schedule_update_delay"
-        android:dependency="is_sun_schedule_update"
-        android:title="@string/pref_title_interval_sun_schedule_update_delay"
-        android:defaultValue="@string/pref_default_interval_sun_schedule_update_delay"
-        android:inputType="numberDecimal"
-        android:selectAllOnFocus="true"
-        android:singleLine="true" />
+    <SwitchPreference
+        android:key="is_debug"
+        android:defaultValue="false"
+        android:title="@string/pref_title_is_debug"
+        android:summary="@string/pref_description_is_debug" />
 
 </PreferenceScreen>

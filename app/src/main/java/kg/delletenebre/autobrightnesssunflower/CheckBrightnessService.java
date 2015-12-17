@@ -90,7 +90,8 @@ public class CheckBrightnessService extends Service {
     }
 
     private void scheduleNext() {
-        if (mHandler != null && _settings.getBoolean("brightness_live_update", true)) {
+        if (mHandler != null && _settings.getBoolean("brightness_live_update", true)
+                && _settings.getBoolean("is_app_enabled", true)) {
             int delay = Integer.parseInt(
                     _settings.getString("brightness_live_update_interval", "10"));
             delay *= 60000;// delay * 60 seconds * 1000 ms
