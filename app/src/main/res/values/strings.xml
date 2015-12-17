@@ -1,0 +1,143 @@
+<resources>
+    <string name="app_name">Подсолнух</string>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="ok" translatable="false">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="success">Успешно</string>
+    <string name="error">Ошибка</string>
+    <string name="loading">Пожалуйста, подождите</string>
+
+    <string name="unknown">неизвестно</string>
+    <string name="location">Местоположение:</string>
+    <string name="coordinates">Координаты:</string>
+    <string name="coordinates_placeholder" translatable="false">%1$f, %2$f</string>
+    <string name="time_placeholder" translatable="false">%1$s - %2$s</string>
+    <string name="times_placeholder" translatable="false">%1$s - %2$s | %3$s - %4$s</string>
+    <string name="day">День:</string>
+    <string name="dusk">Сумерки:</string>
+    <string name="night">Ночь:</string>
+
+    <string name="update_location">Обновить местоположение (по IP)</string>
+    <string name="enter_location">Ввести местоположение</string>
+    <string name="enter_coordinates">Ввести координаты</string>
+    <string name="update_schedule">Обновить расписание</string>
+
+
+    <string name="dialog_title_enter_location">Мы найдём Вас</string>
+    <string name="dialog_text_enter_location">Введите текущий адрес Вашего местоположения (или только город).</string>
+    <string name="hint_address">город, улица дом</string>
+
+    <string name="dialog_title_enter_coordinates">Ввод координат</string>
+    <string name="hint_coordinates" translatable="false">12.345678</string>
+    <string name="latitude">Широта (lat)</string>
+    <string name="longitude">Долгота (lng)</string>
+
+    <string name="link_osm">Геокодер <a href="http://www.openstreetmap.org/">OpenStreetMap</a></string>
+
+
+    <string name="toast_network_error">Сервер не доступен или отсутствует соединение с сетью Интернет</string>
+    <string name="toast_something_wrong">К сожалению, что-то пошло не так :(</string>
+
+
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_brightness_day">Яркость [ День ]</string>
+    <string name="pref_description_brightness_day">Укажите уровень яркости экрана для режима [ День ]</string>
+
+    <string name="pref_title_brightness_dusk">Яркость [ Сумерки ]</string>
+    <string name="pref_description_brightness_dusk">Укажите уровень яркости экрана для режима [ Сумерки ]</string>
+
+    <string name="pref_title_brightness_night">Яркость [ Ночь ]</string>
+    <string name="pref_description_brightness_night">Укажите уровень яркости экрана для режима [ Ночь ]</string>
+
+    <string name="pref_title_brightness_live_update">Изменять яркость при включенном экране</string>
+    <string name="pref_description_brightness_live_update">Включите данную опцию, чтобы программа
+        периодически проверяла (при включенном экране) расписание и актуальность режима
+    </string>
+
+    <string name="pref_title_brightness_live_update_interval">Частота проверки актуальности режима</string>
+    <string-array name="pref_brightness_live_update_interval_titles">
+        <item>1 минута</item>
+        <item>3 минуты</item>
+        <item>5 минут</item>
+        <item>10 минут</item>
+        <item>15 минут</item>
+        <item>20 минут</item>
+        <item>30 минут</item>
+        <item>1 час</item>
+    </string-array>
+    <string-array name="pref_brightness_live_update_interval_values">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+
+    <string name="pref_title_is_sun_schedule_update">Автообновление расписания восхода/заката</string>
+    <string name="pref_description_is_sun_schedule_update">Включите данную опцию, для
+        автоматической синхронизации времени восхода и заката солнца
+    </string>
+
+    <string name="pref_title_interval_sun_schedule_update">Частота обновления расписания восхода/заката</string>
+    <string-array name="pref_interval_sun_schedule_update_titles">
+        <item>3 дня</item>
+        <item>5 дней</item>
+        <item>7 дней</item>
+        <item>10 дней</item>
+        <item>14 дней</item>
+        <item>20 дней</item>
+    </string-array>
+    <string-array name="pref_interval_sun_schedule_update_values">
+        <item>3</item>
+        <item>5</item>
+        <item>7</item>
+        <item>10</item>
+        <item>14</item>
+        <item>20</item>
+    </string-array>
+
+    <string name="pref_title_interval_sun_schedule_update_delay">Задержка обновления расписания восхода/заката (сек)</string>
+    <string name="pref_default_interval_sun_schedule_update_delay">10</string>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+</resources>
