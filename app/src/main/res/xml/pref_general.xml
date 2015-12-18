@@ -7,6 +7,12 @@
         android:summary="@string/pref_description_is_app_enabled" />
 
     <SwitchPreference
+        android:key="autostart"
+        android:defaultValue="true"
+        android:title="@string/pref_title_autostart"
+        android:summary="@string/pref_description_autostart" />
+
+    <SwitchPreference
         android:key="is_toast"
         android:defaultValue="true"
         android:title="@string/pref_title_is_toasts"

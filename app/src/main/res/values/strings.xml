@@ -39,6 +39,7 @@
     <string name="toast_something_wrong">К сожалению, что-то пошло не так :(</string>
     <string name="toast_setted_brightness">Установлен уровень яркости в %d%%</string>
     <string name="toast_sun_schedule_updated">Время восхода/заката Солнца успешно обновлено</string>
+    <string name="toast_bootup">Подсолнух начал следить за Солнцем</string>
 
 
 
@@ -49,6 +50,9 @@
 
     <string name="pref_title_is_app_enabled">Управлять яркостью</string>
     <string name="pref_description_is_app_enabled">Разрешить программе управлять яркостью экрана</string>
+
+    <string name="pref_title_autostart">Автозапуск</string>
+    <string name="pref_description_autostart">Автоматически запускать программу при загрузке устройства</string>
 
     <string name="pref_title_is_toasts">Всплывающие сообщения</string>
     <string name="pref_description_is_toasts">Всплывающие сообщения информирующие о действиях программы</string>

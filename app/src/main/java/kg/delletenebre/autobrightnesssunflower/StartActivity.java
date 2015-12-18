@@ -162,7 +162,7 @@ public class StartActivity extends AppCompatActivity {
 
 
                 new AlertDialog.Builder(mContext)
-                        .setTitle(getString(R.string.dialog_title_enter_location))
+                        .setTitle(R.string.dialog_title_enter_location)
                         .setView(dialogLayout)
                         .setPositiveButton(getString(R.string.ok),
                                 new DialogInterface.OnClickListener() {
@@ -184,7 +184,7 @@ public class StartActivity extends AppCompatActivity {
 
                                     }
                                 })
-                        .setNegativeButton(getString(R.string.cancel),
+                        .setNegativeButton(R.string.cancel,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         dialog.cancel();
@@ -205,9 +205,9 @@ public class StartActivity extends AppCompatActivity {
                         (ViewGroup) getCurrentFocus());
 
                 new AlertDialog.Builder(mContext)
-                        .setTitle(getString(R.string.dialog_title_enter_coordinates))
+                        .setTitle(R.string.dialog_title_enter_coordinates)
                         .setView(dialogLayout)
-                        .setPositiveButton(getString(R.string.ok),
+                        .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         EditText inputLat =
@@ -219,7 +219,7 @@ public class StartActivity extends AppCompatActivity {
                                                 inputLon.getText().toString());
                                     }
                                 })
-                        .setNegativeButton(getString(R.string.cancel),
+                        .setNegativeButton(R.string.cancel,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         dialog.cancel();
@@ -342,7 +342,7 @@ public class StartActivity extends AppCompatActivity {
 
                             if (mAPP.isTOAST()) {
                                 Toast.makeText(AQ.getContext(),
-                                        getString(R.string.toast_something_wrong),
+                                        R.string.toast_something_wrong,
                                         Toast.LENGTH_LONG).show();
                             }
                         }
@@ -356,7 +356,7 @@ public class StartActivity extends AppCompatActivity {
 
                         if (mAPP.isTOAST()) {
                             Toast.makeText(AQ.getContext(),
-                                    getString(R.string.toast_network_error),
+                                    R.string.toast_network_error,
                                     Toast.LENGTH_LONG).show();
                         }
                     }
@@ -391,7 +391,7 @@ public class StartActivity extends AppCompatActivity {
                 _settingEditor.putFloat("lat", lat);
                 _settingEditor.putFloat("lon", lon);
 
-                txtLocation.setText(getString(R.string.unknown));
+                txtLocation.setText(R.string.unknown);
                 txtCoordinates.setText(getString(R.string.coordinates_placeholder, lat, lon));
 
                 _settingEditor.apply();

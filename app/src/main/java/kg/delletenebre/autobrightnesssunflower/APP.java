@@ -272,7 +272,7 @@ public class APP extends Application {
 
                                             if (isTOAST()) {
                                                 Toast.makeText(AQ.getContext(),
-                                                        AQ.getContext().getString(R.string.toast_sun_schedule_updated),
+                                                        R.string.toast_sun_schedule_updated,
                                                         Toast.LENGTH_SHORT).show();
                                             }
 
@@ -341,7 +341,7 @@ public class APP extends Application {
 
                                 if (isTOAST()) {
                                     Toast.makeText(AQ.getContext(),
-                                            AQ.getContext().getString(R.string.toast_network_error),
+                                            R.string.toast_network_error,
                                             Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -368,30 +368,27 @@ public class APP extends Application {
                 result = true;
             } else {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
-                Date lastUpdateDate = null;
                 try {
-                    lastUpdateDate = formatter.parse(sLastUpdateDate);
+                    Date lastUpdateDate = formatter.parse(sLastUpdateDate);
+                    Calendar calendarLastUpdateDay = Calendar.getInstance();
+                    calendarLastUpdateDay.setTime(lastUpdateDate);
+
+                    Calendar today = Calendar.getInstance();
+
+                    long diff = (today.getTimeInMillis() - calendarLastUpdateDay.getTimeInMillis())
+                            / (24 * 60 * 60 * 1000);
+                    int interval = Integer.parseInt(
+                            _settings.getString("interval_sun_schedule_update", "7"));
+
+                    if (DEBUG) {
+                        Log.d(TAG, "Days from last update sun schedule: " + String.valueOf(diff));
+                    }
+
+                    result = (diff >= interval);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                Calendar calendarLastUpdateDay = Calendar.getInstance();
-                calendarLastUpdateDay.setTime(lastUpdateDate);
-
-                Calendar today = Calendar.getInstance();
-
-                long diff = (today.getTimeInMillis() - calendarLastUpdateDay.getTimeInMillis())
-                        / (24 * 60 * 60 * 1000);
-                int interval = Integer.parseInt(
-                        _settings.getString("interval_sun_schedule_update", "7"));
-
-                if (DEBUG) {
-                    Log.d(TAG, "Days from last update sun schedule: " + String.valueOf(diff));
-                }
-
-                result = (diff >= interval);
             }
-
         }
 
         return result;
