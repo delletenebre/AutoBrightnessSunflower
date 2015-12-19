@@ -118,23 +118,30 @@ public class APP extends Application {
     }
 
 
+    public boolean hasPermissionToWriteSettings(Context context) {
+        return (Build.VERSION.SDK_INT < 23 ||
+                (Build.VERSION.SDK_INT >= 23 && Settings.System.canWrite(context)));
+    }
+
+
     public int getSystemBrightness(Context context) {
         int brightness = -1;
 
         try {
             ContentResolver cResolver = context.getContentResolver();
 
-            if (Build.VERSION.SDK_INT < 23 ||
-                    (Build.VERSION.SDK_INT >= 23 && Settings.System.canWrite(context))) {
+            if (hasPermissionToWriteSettings(context)) {
                 Settings.System.putInt(cResolver,
                         Settings.System.SCREEN_BRIGHTNESS_MODE,
                         Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+                brightness = Settings.System.getInt(cResolver, Settings.System.SCREEN_BRIGHTNESS);
+
             } else {
                 Intent grantIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                startActivity(grantIntent);
+                context.startActivity(grantIntent);
             }
 
-            brightness = Settings.System.getInt(cResolver, Settings.System.SCREEN_BRIGHTNESS);
+
         } catch (Settings.SettingNotFoundException e) {
             if (DEBUG) {
                 Log.e(TAG, "Cannot access system brightness: " + e.getMessage());
@@ -162,27 +169,31 @@ public class APP extends Application {
                         brightness = _settings.getInt("brightness_night", 50);
                         break;
                     default:
-                        brightness = 50;
+                        brightness = -1;
                 }
 
-                Settings.System.putInt(context.getContentResolver(),
-                        Settings.System.SCREEN_BRIGHTNESS, (int) (2.55f * brightness));
+                if ( brightness > -1 ) {
+                    Settings.System.putInt(context.getContentResolver(),
+                            Settings.System.SCREEN_BRIGHTNESS, (int) (2.55f * brightness));
 
-                if (window != null) {
-                    WindowManager.LayoutParams lp = window.getAttributes();
-                    lp.screenBrightness = brightness / 100f;
-                    window.setAttributes(lp);
-                }
+                    if (window != null) {
+                        WindowManager.LayoutParams lp = window.getAttributes();
+                        lp.screenBrightness = brightness / 100f;
+                        window.setAttributes(lp);
+                    }
 
-                if (isTOAST()) {
-                    Toast.makeText(context,
-                            context.getString(R.string.toast_setted_brightness, brightness),
-                            Toast.LENGTH_SHORT).show();
-                }
+                    if (isTOAST()) {
+                        Toast.makeText(context,
+                                context.getString(R.string.toast_setted_brightness, brightness),
+                                Toast.LENGTH_SHORT).show();
+                    }
 
-                if (isDEBUG()) {
-                    Log.d(TAG, "System brightness set to " + String.valueOf(brightness) + "% ["
-                            + mode + "]");
+                    if (isDEBUG()) {
+                        Log.d(TAG, "System brightness set to " + String.valueOf(brightness) + "% ["
+                                + mode + "]");
+                    }
+                } else if (isDEBUG()) {
+                    Log.d(TAG, "Current MODE not detected");
                 }
 
             } else if (isDEBUG()) {
