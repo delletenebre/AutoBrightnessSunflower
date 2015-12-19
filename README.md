@@ -14,6 +14,9 @@
 
 При блокировке экрана (`ACTION_SCREEN_OFF`) фоновый сервис завершит работу.
 
+### Android 6.x
+Начиная с версии Android Marshmallow, при запуске будет запущено окно настроек `Settings.ACTION_MANAGE_WRITE_SETTINGS`, где необходимо разрешить программе изменение системных настроек. Программа изменяет только один пункт - отключает автоматическую (адаптивную) настройку яркости экрана.
+
 ### ...
 * Геокодер: [OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/)
 * Расписание восхода/заката Солнца: [Sunrise-Sunset](http://sunrise-sunset.org/)
