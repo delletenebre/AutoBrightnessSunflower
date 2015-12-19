@@ -137,6 +137,8 @@ public class APP extends Application {
                 brightness = Settings.System.getInt(cResolver, Settings.System.SCREEN_BRIGHTNESS);
 
             } else {
+                Toast.makeText(context, R.string.toast_need_permissions, Toast.LENGTH_LONG).show();
+
                 Intent grantIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
                 context.startActivity(grantIntent);
             }
@@ -193,7 +195,7 @@ public class APP extends Application {
                                 + mode + "]");
                     }
                 } else if (isDEBUG()) {
-                    Log.d(TAG, "Current MODE not detected");
+                    Log.d(TAG, "Current mode not detected");
                 }
 
             } else if (isDEBUG()) {

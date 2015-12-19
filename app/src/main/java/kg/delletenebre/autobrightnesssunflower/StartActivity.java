@@ -95,10 +95,9 @@ public class StartActivity extends AppCompatActivity {
                     txtNight.setTypeface(null, Typeface.BOLD);
                     break;
             }
-
-
-            mAPP.setSystemBrightness(mContext, getWindow());
         }
+
+        mAPP.setSystemBrightness(mContext, getWindow());
 
 
         btnUpdateLocation = (ActionProcessButton) findViewById(R.id.update_location);

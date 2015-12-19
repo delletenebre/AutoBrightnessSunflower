@@ -34,7 +34,7 @@
 
     <string name="link_osm">Геокодер <a href="http://www.openstreetmap.org/">OpenStreetMap</a></string>
 
-
+    <string name="toast_need_permissions">Приложению Подсолнух необходимы права на изменение настроек</string>
     <string name="toast_network_error">Сервер не доступен или отсутствует соединение с сетью Интернет</string>
     <string name="toast_something_wrong">К сожалению, что-то пошло не так :(</string>
     <string name="toast_setted_brightness">Установлен уровень яркости в %d%%</string>
