@@ -3,10 +3,10 @@
 
 Проект разработан для планшета установленного в качестве CarPC.
 
-![screenshot_20151219-211925](https://cloud.githubusercontent.com/assets/3936845/11914353/c62863b8-a6a8-11e5-9d57-580bd767cb45.png)
-![screenshot_20151219-211947](https://cloud.githubusercontent.com/assets/3936845/11914351/c625f218-a6a8-11e5-81ec-06d45f6a4071.png)
-![screenshot_20151219-212004](https://cloud.githubusercontent.com/assets/3936845/11914355/c6294e18-a6a8-11e5-9934-dace4204a18b.png)
-![screenshot_20151219-212016](https://cloud.githubusercontent.com/assets/3936845/11914354/c628e522-a6a8-11e5-824d-ea55b6c7f12a.png)
+<img src="https://cloud.githubusercontent.com/assets/3936845/11914353/c62863b8-a6a8-11e5-9d57-580bd767cb45.png" width="480">
+<img src="https://cloud.githubusercontent.com/assets/3936845/11914351/c625f218-a6a8-11e5-81ec-06d45f6a4071.png" width="480">
+<img src="https://cloud.githubusercontent.com/assets/3936845/11914355/c6294e18-a6a8-11e5-9934-dace4204a18b.png" width="480">
+<img src="https://cloud.githubusercontent.com/assets/3936845/11914354/c628e522-a6a8-11e5-824d-ea55b6c7f12a.png" width="480">
 
 ### Требования
 * Android 4.0.3 и выше
@@ -21,8 +21,7 @@
 
 ### Android 6.x
 Начиная с версии Android Marshmallow, при запуске будет запущено окно настроек `Settings.ACTION_MANAGE_WRITE_SETTINGS`, где необходимо разрешить программе изменение системных настроек. Программа изменяет только один пункт - отключает автоматическую (адаптивную) настройку яркости экрана.
-
-![screenshot_20151219-232103](https://cloud.githubusercontent.com/assets/3936845/11914352/c625fe70-a6a8-11e5-831a-4614c03f077d.png)
+<img src="https://cloud.githubusercontent.com/assets/3936845/11914352/c625fe70-a6a8-11e5-831a-4614c03f077d.png" width="480">
 
 ### ...
 * Геокодер: [OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/)
