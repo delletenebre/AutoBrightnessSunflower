@@ -32,5 +32,6 @@
 <img src="https://cloud.githubusercontent.com/assets/3936845/11914352/c625fe70-a6a8-11e5-831a-4614c03f077d.png" width="480">
 
 ### ...
+* Геокодер (IP): [IP-API.com](http://ip-api.com/)
 * Геокодер: [OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/)
 * Расписание восхода/заката Солнца: [Sunrise-Sunset](http://sunrise-sunset.org/)
