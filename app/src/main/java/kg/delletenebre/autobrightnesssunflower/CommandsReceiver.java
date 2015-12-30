@@ -14,7 +14,7 @@ public class CommandsReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)
-                || intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+                || intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
 
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
                 Log.i(TAG, "****ACTION_BOOT_COMPLETED****");

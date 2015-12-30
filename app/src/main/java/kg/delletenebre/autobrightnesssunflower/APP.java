@@ -1,5 +1,6 @@
 package kg.delletenebre.autobrightnesssunflower;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -54,6 +55,15 @@ public class APP extends Application {
     public static void setSettings(SharedPreferences settings) {
         _settings = settings;
     }
+
+    public Activity startActivity;
+    public void setStartActivity(Activity activity) {
+        startActivity = activity;
+    }
+    public Activity getStartActivity() {
+        return startActivity;
+    }
+
 
     public boolean timeInRange(String time, String startTime, String endTime) {
         String[] timeArray = time.split(":", -1);

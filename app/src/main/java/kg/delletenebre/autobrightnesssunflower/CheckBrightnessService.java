@@ -32,6 +32,10 @@ public class CheckBrightnessService extends Service {
         _settings = PreferenceManager.getDefaultSharedPreferences(this);
         mAPP = APP.getInstance(_settings);
 
+        if (mAPP.getStartActivity() != null) {
+            mAPP.getStartActivity().finish();
+        }
+
         receiver = new CommandsReceiver();
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         registerReceiver(receiver, intentFilter);

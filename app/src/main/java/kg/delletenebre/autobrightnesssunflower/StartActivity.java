@@ -53,6 +53,7 @@ public class StartActivity extends AppCompatActivity {
         _settings = PreferenceManager.getDefaultSharedPreferences(this);
 
         mAPP = APP.getInstance(_settings);
+        mAPP.setStartActivity(this);
 
         txtLocation = (TextView) findViewById(R.id.textLocation);
         String tLocation = _settings.getString("location", "");
@@ -238,6 +239,13 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mAPP.setStartActivity(null);
     }
 
     @Override
