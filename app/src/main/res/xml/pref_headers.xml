@@ -7,12 +7,12 @@
 
     <header
         android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$BrightnessPreferenceFragment"
-        android:icon="@drawable/ic_brightness_black_24dp"
+        android:icon="@drawable/ic_brightness_medium_black_24dp"
         android:title="@string/pref_header_brightness" />
 
     <header
         android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$SunSyncPreferenceFragment"
-        android:icon="@drawable/ic_time_black_24dp"
+        android:icon="@drawable/ic_schedule_black_24dp"
         android:title="@string/pref_header_sun_sync" />
 
 </preference-headers>
