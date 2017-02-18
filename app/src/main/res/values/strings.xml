@@ -17,33 +17,20 @@
     <string name="dusk">Сумерки:</string>
     <string name="night">Ночь:</string>
 
-    <string name="update_location">Обновить местоположение (по IP)</string>
-    <string name="enter_location">Ввести местоположение</string>
     <string name="enter_coordinates">Ввести координаты</string>
     <string name="update_schedule">Обновить расписание</string>
 
-
-    <string name="dialog_title_enter_location">Мы найдём Вас</string>
-    <string name="dialog_text_enter_location">Введите текущий адрес Вашего местоположения (или только город).</string>
-    <string name="hint_address">город, улица дом</string>
 
     <string name="dialog_title_enter_coordinates">Ввод координат</string>
     <string name="hint_coordinates" translatable="false">12.345678</string>
     <string name="latitude">Широта (lat)</string>
     <string name="longitude">Долгота (lng)</string>
 
-    <string name="link_osm">Геокодер <a href="http://www.openstreetmap.org/">OpenStreetMap</a></string>
 
     <string name="toast_need_permissions">Приложению Подсолнух необходимы права на изменение настроек</string>
-    <string name="toast_network_error">Сервер не доступен или отсутствует соединение с сетью Интернет</string>
-    <string name="toast_something_wrong">К сожалению, что-то пошло не так :(</string>
-    <string name="toast_setted_brightness">Установлен уровень яркости в %d%%</string>
-    <string name="toast_sun_schedule_updated">Время восхода/заката Солнца успешно обновлено</string>
+    <string name="toast_setted_brightness">Установленный уровень яркости: %1$d (%2$d%%)</string>
     <string name="toast_bootup">Подсолнух начал следить за Солнцем</string>
 
-
-
-    <!-- Strings related to Settings -->
 
     <!-- General settings -->
     <string name="pref_header_general">Основные</string>
@@ -52,42 +39,17 @@
     <string name="pref_description_is_app_enabled">Разрешить программе управлять яркостью экрана</string>
 
     <string name="pref_title_autostart">Автозапуск</string>
-    <string name="pref_description_autostart">Автоматически запускать программу при загрузке устройства</string>
+    <string name="pref_description_autostart">Запускать программу при загрузке устройства</string>
 
-    <string name="pref_title_is_toasts">Всплывающие сообщения</string>
-    <string name="pref_description_is_toasts">Всплывающие сообщения информирующие о действиях программы</string>
+    <string name="pref_title_autostart_delay">Задержка запуска (сек)</string>
+    <string name="pref_default_autostart_delay">10</string>
 
     <string name="pref_title_is_debug">Режим отладки</string>
-    <string name="pref_description_is_debug">Включить режим отладки (отправка дополнительных сообщений
-    в logcat)</string>
-
-
+    <string name="pref_description_is_debug">Включить режим отладки и показывать дополнительные сообщения</string>
 
 
     <!-- Settings for Sun Sync -->
-    <string name="pref_header_sun_sync">Время восхода/заката</string>
-
-    <string name="pref_title_is_sun_schedule_update">Автообновление расписания восхода/заката</string>
-    <string name="pref_description_is_sun_schedule_update">Включите данную опцию для
-        автоматической синхронизации времени восхода и заката солнца</string>
-
-    <string name="pref_title_interval_sun_schedule_update">Частота обновления</string>
-    <string-array name="pref_interval_sun_schedule_update_titles">
-        <item>3 дня</item>
-        <item>5 дней</item>
-        <item>7 дней</item>
-        <item>10 дней</item>
-        <item>14 дней</item>
-        <item>20 дней</item>
-    </string-array>
-    <string-array name="pref_interval_sun_schedule_update_values">
-        <item>3</item>
-        <item>5</item>
-        <item>7</item>
-        <item>10</item>
-        <item>14</item>
-        <item>20</item>
-    </string-array>
+    <string name="pref_header_sun_sync">Время</string>
 
     <string name="pref_title_interval_sun_schedule_update_delay">Задержка обновления (сек)</string>
     <string name="pref_default_interval_sun_schedule_update_delay">10</string>
@@ -97,21 +59,19 @@
     <!-- Settings for Brightness -->
     <string name="pref_header_brightness">Яркость экрана</string>
 
-    <string name="pref_title_brightness_day">Яркость [ День ]</string>
-    <string name="pref_description_brightness_day">Укажите уровень яркости экрана для режима [ День ]</string>
+    <string name="pref_title_brightness_day">Яркость \"День\"</string>
+    <string name="pref_description_brightness_day">Укажите уровень яркости экрана для режима День</string>
 
-    <string name="pref_title_brightness_dusk">Яркость [ Сумерки ]</string>
-    <string name="pref_description_brightness_dusk">Укажите уровень яркости экрана для режима [ Сумерки ]</string>
+    <string name="pref_title_brightness_dusk">Яркость \"Сумерки\"</string>
+    <string name="pref_description_brightness_dusk">Укажите уровень яркости экрана для режима Сумерки</string>
 
-    <string name="pref_title_brightness_night">Яркость [ Ночь ]</string>
-    <string name="pref_description_brightness_night">Укажите уровень яркости экрана для режима [ Ночь ]</string>
+    <string name="pref_title_brightness_night">Яркость \"Ночь\"</string>
+    <string name="pref_description_brightness_night">Укажите уровень яркости экрана для режима Ночь</string>
 
     <string name="pref_title_brightness_live_update">Изменять яркость при включенном экране</string>
-    <string name="pref_description_brightness_live_update">Включите данную опцию, чтобы программа
-        периодически проверяла (при включенном экране) расписание и актуальность режима
-    </string>
+    <string name="pref_description_brightness_live_update">Проверять соответствие режима и текущей яркости</string>
 
-    <string name="pref_title_brightness_live_update_interval">Частота проверки актуальности режима</string>
+    <string name="pref_title_brightness_live_update_interval">Частота проверки яркости экрана</string>
     <string-array name="pref_brightness_live_update_interval_titles">
         <item>1 минута</item>
         <item>3 минуты</item>
@@ -132,4 +92,7 @@
         <item>30</item>
         <item>60</item>
     </string-array>
+
+    <string name="pref_title_gps_update_time">Обновлять время по GPS</string>
+    <string name="pref_description_gps_update_time">Необходим Root</string>
 </resources>

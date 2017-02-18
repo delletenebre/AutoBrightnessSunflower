@@ -2,49 +2,43 @@ package kg.delletenebre.autobrightnesssunflower;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class CheckBrightnessService extends Service {
-    private final String TAG = getClass().getName();
 
-    private APP mAPP;
-    private SharedPreferences _settings;
-    private CommandsReceiver receiver;
-    private String currentBrightnessMode;
+    private SharedPreferences mPrefs;
+    private Runnable mRunnable;
+    private Handler mHandler;
 
-    Handler mHandler;
-    private Runnable mRunnable = new Runnable() {
-        @Override
-        public void run() {
-            checkBrightness();
-        }
-    };
 
     @Override
     public  void onCreate() {
         super.onCreate();
 
-        _settings = PreferenceManager.getDefaultSharedPreferences(this);
-        mAPP = APP.getInstance(_settings);
-
-        if (mAPP.getStartActivity() != null) {
-            mAPP.getStartActivity().finish();
-        }
-
-        receiver = new CommandsReceiver();
-        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(receiver, intentFilter);
-
+        mPrefs = App.getInstance().getPrefs();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                checkBrightness();
+            }
+        };
         mHandler = new Handler();
-        currentBrightnessMode = mAPP.getCurrentMode();
 
-        if (mAPP.isDEBUG()) {
-            Log.d(TAG, "CheckBrightnessService CREATED");
+        android.location.Location lastLocation = App.getInstance().getLastKnownLocation();
+        if (lastLocation != null) {
+            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+            prefsEditor.putFloat("lat", (float) lastLocation.getLatitude());
+            prefsEditor.putFloat("lon", (float) lastLocation.getLongitude());
+            prefsEditor.apply();
+
+            Intent intent = new Intent(App.ACTION_LOCATION_UPDATE);
+            intent.putExtra("lat", lastLocation.getLatitude());
+            intent.putExtra("lon", lastLocation.getLongitude());
+            sendBroadcast(intent);
+
+            App.getInstance().updateSystemBrightness();
         }
     }
 
@@ -52,18 +46,10 @@ public class CheckBrightnessService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        if (receiver != null) {
-            unregisterReceiver(receiver);
-        }
-
-        if (mHandler != null) {
-            mHandler.removeCallbacks(mRunnable);
-            mHandler = null;
-        }
-
-        if (mAPP.isDEBUG()) {
-            Log.d(TAG, "CheckBrightnessService DESTROYED");
-        }
+        mHandler.removeCallbacks(mRunnable);
+        mHandler = null;
+        mRunnable = null;
+        mPrefs = null;
     }
 
     @Override
@@ -79,25 +65,15 @@ public class CheckBrightnessService extends Service {
     }
 
     private void checkBrightness() {
-        try {
-            String brightnessMode = mAPP.getCurrentMode();
-            if (!currentBrightnessMode.equals(brightnessMode)) {
-                currentBrightnessMode = brightnessMode;
-                mAPP.setSystemBrightness(getApplicationContext(), null);
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Brightness check service's runnable error: " + e.getMessage());
-        }
-
+        App.getInstance().updateSystemBrightness();
         scheduleNext();
     }
 
     private void scheduleNext() {
-        if (mHandler != null && _settings.getBoolean("brightness_live_update", true)
-                && _settings.getBoolean("is_app_enabled", true)) {
+        if (mHandler != null && mPrefs.getBoolean("brightness_live_update", true)
+                && mPrefs.getBoolean("is_app_enabled", true)) {
             int delay = Integer.parseInt(
-                    _settings.getString("brightness_live_update_interval", "10"));
+                    mPrefs.getString("brightness_live_update_interval", "10"));
             delay *= 60000;// delay * 60 seconds * 1000 ms
             mHandler.postDelayed(mRunnable, delay);
         } else {

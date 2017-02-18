@@ -1,0 +1,8 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference android:key="gps_update_time"
+        android:defaultValue="false"
+        android:title="@string/pref_title_gps_update_time"
+        android:summary="@string/pref_description_gps_update_time" />
+
+</PreferenceScreen>

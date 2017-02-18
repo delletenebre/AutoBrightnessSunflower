@@ -2,9 +2,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.pavelsikun.seekbarpreference.SeekBarPreference
-        android:key="brightness_day"
+    <SwitchPreference android:key="brightness_live_update"
+        android:defaultValue="true"
+        android:title="@string/pref_title_brightness_live_update"
+        android:summary="@string/pref_description_brightness_live_update" />
 
+    <ListPreference android:key="brightness_live_update_interval"
+        android:dependency="brightness_live_update"
+        android:defaultValue="10"
+        android:title="@string/pref_title_brightness_live_update_interval"
+        android:entries="@array/pref_brightness_live_update_interval_titles"
+        android:entryValues="@array/pref_brightness_live_update_interval_values"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+
+    <com.pavelsikun.seekbarpreference.SeekBarPreference android:key="brightness_day"
         android:title="@string/pref_title_brightness_day"
         android:summary="@string/pref_description_brightness_day"
         android:defaultValue="100"
@@ -14,9 +26,7 @@
         app:msbp_interval="1"
         app:msbp_measurementUnit="%" />
 
-    <com.pavelsikun.seekbarpreference.SeekBarPreference
-        android:key="brightness_dusk"
-
+    <com.pavelsikun.seekbarpreference.SeekBarPreference android:key="brightness_dusk"
         android:title="@string/pref_title_brightness_dusk"
         android:summary="@string/pref_description_brightness_dusk"
         android:defaultValue="50"
@@ -26,9 +36,7 @@
         app:msbp_interval="1"
         app:msbp_measurementUnit="%" />
 
-    <com.pavelsikun.seekbarpreference.SeekBarPreference
-        android:key="brightness_night"
-
+    <com.pavelsikun.seekbarpreference.SeekBarPreference android:key="brightness_night"
         android:title="@string/pref_title_brightness_night"
         android:summary="@string/pref_description_brightness_night"
         android:defaultValue="5"
@@ -37,21 +45,5 @@
         app:msbp_maxValue="100"
         app:msbp_interval="1"
         app:msbp_measurementUnit="%" />
-
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="brightness_live_update"
-        android:title="@string/pref_title_brightness_live_update"
-        android:summary="@string/pref_description_brightness_live_update" />
-
-    <ListPreference
-        android:key="brightness_live_update_interval"
-        android:dependency="brightness_live_update"
-        android:title="@string/pref_title_brightness_live_update_interval"
-        android:entries="@array/pref_brightness_live_update_interval_titles"
-        android:entryValues="@array/pref_brightness_live_update_interval_values"
-        android:defaultValue="10"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
 
 </PreferenceScreen>

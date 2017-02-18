@@ -11,7 +11,7 @@
         android:title="@string/pref_header_brightness" />
 
     <header
-        android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$SunSyncPreferenceFragment"
+        android:fragment="kg.delletenebre.autobrightnesssunflower.SettingsActivity$GpsTimeSyncPreferenceFragment"
         android:icon="@drawable/ic_schedule_black_24dp"
         android:title="@string/pref_header_sun_sync" />
 

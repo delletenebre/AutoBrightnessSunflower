@@ -1,22 +1,23 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
+    <SwitchPreference android:key="is_app_enabled"
         android:defaultValue="true"
-        android:key="is_app_enabled"
         android:title="@string/pref_title_is_app_enabled"
         android:summary="@string/pref_description_is_app_enabled" />
 
-    <SwitchPreference
-        android:key="autostart"
+    <SwitchPreference android:key="autostart"
+        android:dependency="is_app_enabled"
         android:defaultValue="true"
         android:title="@string/pref_title_autostart"
         android:summary="@string/pref_description_autostart" />
 
-    <SwitchPreference
-        android:key="is_toast"
-        android:defaultValue="true"
-        android:title="@string/pref_title_is_toasts"
-        android:summary="@string/pref_description_is_toasts" />
+    <EditTextPreference android:key="autostart_delay"
+        android:dependency="autostart"
+        android:title="@string/pref_title_autostart_delay"
+        android:defaultValue="@string/pref_default_autostart_delay"
+        android:inputType="number"
+        android:selectAllOnFocus="true"
+        android:maxLines="1" />
 
     <SwitchPreference
         android:key="is_debug"
