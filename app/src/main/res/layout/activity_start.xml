@@ -84,29 +84,10 @@
                     android:text="@string/unknown" />
             </TableRow>
 
-            <TableLayout
-                android:layout_marginTop="@dimen/activity_vertical_margin">
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <Button
-                        android:id="@+id/enter_coordinates"
-                        android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:text="@string/enter_coordinates"
-                        android:textColor="@android:color/white" />
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <Button
-                        android:id="@+id/update_schedule"
-                        android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:text="@string/update_schedule"
-                        android:textColor="@android:color/white" />
-                </TableRow>
-
-            </TableLayout>
+            <Button
+                android:id="@+id/enter_coordinates"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/enter_coordinates" />
 
         </TableLayout>
 

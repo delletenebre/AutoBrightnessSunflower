@@ -27,7 +27,6 @@ public class StartActivity extends AppCompatActivity {
 
     private SharedPreferences mPrefs;
     private App mApp;
-    private Button mBtnEnterCoordinates, mBtnUpdateSchedule;
     private TextView mTxtCoordinates, mTxtDay, mTxtDusk, mTxtNight;
     private BroadcastReceiver mBroadcastReceiver;
 
@@ -80,10 +79,8 @@ public class StartActivity extends AppCompatActivity {
             }
         };
 
-        mBtnEnterCoordinates = (Button) findViewById(R.id.enter_coordinates);
-        mBtnUpdateSchedule = (Button) findViewById(R.id.update_schedule);
-
-        mBtnEnterCoordinates.setOnClickListener(new View.OnClickListener() {
+        Button btnEnterCoordinates = (Button) findViewById(R.id.enter_coordinates);
+        btnEnterCoordinates.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -113,13 +110,6 @@ public class StartActivity extends AppCompatActivity {
                                     }
                                 })
                         .show();
-            }
-        });
-
-        mBtnUpdateSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mApp.updateSystemBrightness();
             }
         });
     }

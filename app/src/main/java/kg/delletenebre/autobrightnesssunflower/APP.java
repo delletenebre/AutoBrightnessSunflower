@@ -1,75 +1,131 @@
 package kg.delletenebre.autobrightnesssunflower;
 
-import android.app.Activity;
+import android.Manifest;
 import android.app.Application;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.GpsStatus;
+import android.location.LocationManager;
+import android.location.OnNmeaMessageListener;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxCallback;
-import com.androidquery.callback.AjaxStatus;
-import com.dd.processbutton.iml.ActionProcessButton;
+import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
+import com.luckycatlabs.sunrisesunset.dto.Location;
 
-import org.json.JSONObject;
-
+import java.io.DataOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class APP extends Application {
-    public static boolean DEBUG = false;
-    public boolean isDEBUG() {
-        return DEBUG;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
+public class App extends Application {
+    private static App sInstance;
+    public static App getInstance() {
+        return sInstance;
     }
 
-    public static boolean TOAST = true;
-    public boolean isTOAST() {
-        return TOAST;
+    public static final String TAG = "Autobrightness GPS";
+    public static final String ACTION_LOCATION_UPDATE = "kg.delletenebre.sunflower.LOCATION_UPDATE";
+    public static final String ACTION_SCHEDULE_UPDATE = "kg.delletenebre.sunflower.SCHEDULE_UPDATE";
+
+
+    public boolean mDebugState = false;
+    private SharedPreferences mPrefs;
+    private LocationManager mLocationManager;
+    private OnNmeaMessageListener mNmeaMessageListener;
+    private GpsStatus.NmeaListener mNmeaListener;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        sInstance = this;
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        setDebugEnabled(mPrefs.getBoolean("is_debug", false));
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(new EventsReceiver(), intentFilter);
+
+        mLocationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+
+        if (mPrefs.getBoolean("gps_update_time", false) && App.getInstance().hasGpsPermission()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mNmeaMessageListener = new OnNmeaMessageListener() {
+                    @Override
+                    public void onNmeaMessage(String nmea, long timestamp) {
+                        parseNmea(nmea);
+                    }
+                };
+                //noinspection MissingPermission
+                mLocationManager.addNmeaListener(mNmeaMessageListener);
+            } else {
+                mNmeaListener = new GpsStatus.NmeaListener() {
+                    public void onNmeaReceived(long timestamp, String nmea) {
+                        parseNmea(nmea);
+                    }
+                };
+                //noinspection MissingPermission
+                mLocationManager.addNmeaListener(mNmeaListener);
+            }
+        }
     }
 
-    private static APP instance = new APP();
-    public static APP getInstance() {
-        return instance;
-    }
-    public static APP getInstance(SharedPreferences settings) {
-        setSettings(settings);
-        DEBUG = settings.getBoolean("is_debug", false);
-        TOAST = settings.getBoolean("is_toast", false);
-        return instance;
+    public SharedPreferences getPrefs() {
+        return mPrefs;
     }
 
-    private final String TAG = "Autobrightness GPS";
-
-    private static SharedPreferences _settings;
-    public static void setSettings(SharedPreferences settings) {
-        _settings = settings;
+    public boolean isDebugEnabled() {
+        return mDebugState;
     }
 
-    public Activity startActivity;
-    public void setStartActivity(Activity activity) {
-        startActivity = activity;
-    }
-    public Activity getStartActivity() {
-        return startActivity;
+    public void setDebugEnabled(boolean state) {
+        mDebugState = state;
     }
 
+    public android.location.Location getLastKnownLocation() {
+        android.location.Location location = null;
+        if (mLocationManager != null && hasGpsPermission()) {
+            List<String> matchingProviders = mLocationManager.getAllProviders();
+            for (String provider: matchingProviders) {
+                //noinspection MissingPermission
+                location = mLocationManager.getLastKnownLocation(provider);
+                if (location != null) {
+                    Log.d(TAG, "saved lat:" + location.getLatitude());
+                    Log.d(TAG, "saved lon:" + location.getLongitude());
+                    break;
+                }
+            }
+        }
+
+        return location;
+    }
+
+    private void stopNmeaListeners() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && mNmeaMessageListener != null) {
+            mLocationManager.removeNmeaListener(mNmeaMessageListener);
+        } else if (mNmeaListener != null) {
+            mLocationManager.removeNmeaListener(mNmeaListener);
+        }
+    }
 
     public boolean timeInRange(String time, String startTime, String endTime) {
         String[] timeArray = time.split(":", -1);
-        Calendar calendarTime = Calendar.getInstance();
-        calendarTime.set(Calendar.HOUR, Integer.parseInt(timeArray[0]));
-        calendarTime.set(Calendar.MINUTE, Integer.parseInt(timeArray[1]));
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, Integer.parseInt(timeArray[0]));
+        calendar.set(Calendar.MINUTE, Integer.parseInt(timeArray[1]));
 
         String[] startArray = startTime.split(":", -1);
         Calendar calendarStart = Calendar.getInstance();
@@ -81,38 +137,20 @@ public class APP extends Application {
         calendarEnd.set(Calendar.HOUR, Integer.parseInt(endArray[0]));
         calendarEnd.set(Calendar.MINUTE, Integer.parseInt(endArray[1]));
 
-        return (calendarTime.after(calendarStart) && calendarTime.before(calendarEnd));
+        return (calendar.after(calendarStart) && calendar.before(calendarEnd));
     }
 
     public String getCurrentTime() {
-        Calendar calendar = Calendar.getInstance();
-
-        String time = String.format("%02d" , calendar.get(Calendar.HOUR_OF_DAY))
-                + ":" + String.format("%02d" , calendar.get(Calendar.MINUTE));
-
-        if (DEBUG) {
-            Log.d(TAG, "Current time: " + time);
-        }
-
-        return time;
-    }
-
-    public String getCurrentDate() {
-        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(new Date());
-
-        if (DEBUG) {
-            Log.d(TAG, "Current date: " + date);
-        }
-
-        return date;
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm", Locale.ROOT);
+        return df.format(Calendar.getInstance().getTime());
     }
 
     public String getCurrentMode() {
         String time = getCurrentTime();
-        String sunrise = _settings.getString("sunrise", "");
-        String sunset = _settings.getString("sunset", "");
-        String duskStart = _settings.getString("dusk_start", "");
-        String duskEnd = _settings.getString("dusk_end", "");
+        String sunrise = mPrefs.getString("sunrise", "");
+        String sunset = mPrefs.getString("sunset", "");
+        String duskStart = mPrefs.getString("dusk_start", "");
+        String duskEnd = mPrefs.getString("dusk_end", "");
 
         if (!sunrise.isEmpty() && !sunset.isEmpty() && !duskStart.isEmpty() && !duskEnd.isEmpty()) {
             if (timeInRange(time, sunrise, sunset)) {
@@ -134,286 +172,165 @@ public class APP extends Application {
     }
 
 
-    public int getSystemBrightness(Context context) {
+    public int getSystemBrightness() {
         int brightness = -1;
 
-        try {
-            ContentResolver cResolver = context.getContentResolver();
+        if (hasPermissionToWriteSettings(this)) {
+            try {
+                int mode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
+                if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                    Settings.System.putInt(getContentResolver(),
+                            Settings.System.SCREEN_BRIGHTNESS_MODE,
+                            Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+                }
 
-            if (hasPermissionToWriteSettings(context)) {
-                Settings.System.putInt(cResolver,
-                        Settings.System.SCREEN_BRIGHTNESS_MODE,
-                        Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-                brightness = Settings.System.getInt(cResolver, Settings.System.SCREEN_BRIGHTNESS);
+                brightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
 
-            } else {
-                Toast.makeText(context, R.string.toast_need_permissions, Toast.LENGTH_LONG).show();
-
-                Intent grantIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                context.startActivity(grantIntent);
+                if (isDebugEnabled()) {
+                    Log.d(TAG, "Current brightness: " + brightness);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        } else {
+            Toast.makeText(this, R.string.toast_need_permissions, Toast.LENGTH_LONG).show();
 
-
-        } catch (Settings.SettingNotFoundException e) {
-            if (DEBUG) {
-                Log.e(TAG, "Cannot access system brightness: " + e.getMessage());
+            if (Build.VERSION.SDK_INT >= 23) {
+                Intent grantIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                grantIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                startActivity(grantIntent);
             }
         }
 
         return brightness;
     }
 
-    public void setSystemBrightness(Context context, Window window) {
-        if (_settings.getBoolean("is_app_enabled", true)) {
-            int brightness = getSystemBrightness(context);
+    public void updateSystemBrightness() {
+        updateSunriseSunsetSchedule();
 
-            if (brightness > -1) {
+        if (mPrefs.getBoolean("is_app_enabled", true)) {
+            int currentBrightness = getSystemBrightness();
+
+            if (currentBrightness > -1) {
                 String mode = getCurrentMode();
-
+                int brightnessPercent = 50;
                 switch (mode) {
                     case "day":
-                        brightness = _settings.getInt("brightness_day", 50);
+                        brightnessPercent = mPrefs.getInt("brightness_day", brightnessPercent);
                         break;
                     case "dusk":
-                        brightness = _settings.getInt("brightness_dusk", 50);
+                        brightnessPercent = mPrefs.getInt("brightness_dusk", brightnessPercent);
                         break;
                     case "night":
-                        brightness = _settings.getInt("brightness_night", 50);
+                        brightnessPercent = mPrefs.getInt("brightness_night", brightnessPercent);
                         break;
-                    default:
-                        brightness = -1;
+                }
+                int brightness = (int) (2.55 * brightnessPercent);
+
+                if (currentBrightness != brightness) {
+                    Settings.System.putInt(getContentResolver(),
+                            Settings.System.SCREEN_BRIGHTNESS, brightness);
                 }
 
-                if ( brightness > -1 ) {
-                    Settings.System.putInt(context.getContentResolver(),
-                            Settings.System.SCREEN_BRIGHTNESS, (int) (2.55f * brightness));
-
-                    if (window != null) {
-                        WindowManager.LayoutParams lp = window.getAttributes();
-                        lp.screenBrightness = brightness / 100f;
-                        window.setAttributes(lp);
-                    }
-
-                    if (isTOAST()) {
-                        Toast.makeText(context,
-                                context.getString(R.string.toast_setted_brightness, brightness),
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    if (isDEBUG()) {
-                        Log.d(TAG, "System brightness set to " + String.valueOf(brightness) + "% ["
-                                + mode + "]");
-                    }
-                } else if (isDEBUG()) {
-                    Log.d(TAG, "Current mode not detected");
+                if (isDebugEnabled()) {
+                    Toast.makeText(this,
+                            getString(R.string.toast_setted_brightness, brightness, brightnessPercent),
+                            Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, String.format(Locale.ROOT,
+                            "System brightness set to %1$d (%2$d%%) [%3$s]",
+                            brightness, brightnessPercent, mode));
                 }
-
-            } else if (isDEBUG()) {
+            } else if (isDebugEnabled()) {
                 Log.e(TAG, "Getting system brightness error");
             }
         }
     }
 
-    public void updateSunriseSunsetSchedule(Context context,
-                                            final ActionProcessButton button,
-                                            final TextView txtDay,
-                                            final TextView txtDusk,
-                                            final TextView txtNight) {
-        float lat = _settings.getFloat("lat", 181);
-        float lon = _settings.getFloat("lon", 181);
-        String sLat = String.valueOf(lat);
-        String sLon = String.valueOf(lon);
 
-        if (button != null) {
-            button.setProgress(0);
-        }
+    public void updateSunriseSunsetSchedule() {
+        float lat = mPrefs.getFloat("lat", 181);
+        float lon = mPrefs.getFloat("lon", 181);
 
-        if ((lat >= -180 && lat <= 180) && (lon >= -180 && lon <= 180)) {
-            if (button != null) {
-                button.setEnabled(false);
-                button.setProgress(1);
-            }
+        if (coordinatesInRange(lat, lon)) {
+            SunriseSunsetCalculator ssCalculator = new SunriseSunsetCalculator(
+                    new Location(String.valueOf(lat), String.valueOf(lon)),
+                    (TimeZone.getDefault()).getID());
 
-            final AQuery AQ = new AQuery(context);
-            AQ.ajax("http://api.sunrise-sunset.org/json?lat=" + sLat + "&lng=" + sLon + "&formatted=0",
-                    JSONObject.class, new AjaxCallback<JSONObject>() {
+            String civilSunrise = ssCalculator.getCivilSunriseForDate(Calendar.getInstance());
+            String officialSunrise = ssCalculator.getOfficialSunriseForDate(Calendar.getInstance());
+            String officialSunset = ssCalculator.getOfficialSunsetForDate(Calendar.getInstance());
+            String civilSunset = ssCalculator.getCivilSunsetForDate(Calendar.getInstance());
 
-                        @Override
-                        public void callback(String url, JSONObject json, AjaxStatus status) {
-                            if (button != null) {
-                                button.setEnabled(true);
-                            }
+            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+            prefsEditor.putString("sunrise", officialSunrise);
+            prefsEditor.putString("sunset", officialSunset);
+            prefsEditor.putString("dusk_start", civilSunrise);
+            prefsEditor.putString("dusk_end", civilSunset);
+            prefsEditor.apply();
 
-                            if (json != null) {
-                                if (button != null) {
-                                    button.setProgress(100);
-                                }
-
-                                String sStatus = json.optString("status");
-                                if (sStatus.equals("OK")) {
-                                    try {
-                                        JSONObject result = json.getJSONObject("results");
-                                        String  sSunrise = result.optString("sunrise"),
-                                                sSunset = result.optString("sunset"),
-                                                sDuskStart = result.optString("civil_twilight_begin"),
-                                                sDuskEnd = result.optString("civil_twilight_end"),
-                                                sNauticalTwB = result.optString("nautical_twilight_begin"),
-                                                sNauticalTwE = result.optString("nautical_twilight_end"),
-                                                sAstroTwB = result.optString("astronomical_twilight_begin"),
-                                                sAstroTwE = result.optString("astronomical_twilight_end");
-
-                                        SimpleDateFormat hhmmFormat = new SimpleDateFormat("HH:mm", Locale.ROOT);
-                                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ROOT);
-                                        dateFormat.setTimeZone(TimeZone.getDefault());
-                                        try {
-                                            Date dateSunrise = dateFormat.parse(sSunrise),
-                                                    dateSunset = dateFormat.parse(sSunset),
-                                                    dateCivilTwB = dateFormat.parse(sDuskStart),
-                                                    dateCivilTwE = dateFormat.parse(sDuskEnd),
-                                                    dateNauticalTwB = dateFormat.parse(sNauticalTwB),
-                                                    dateNauticalTwE = dateFormat.parse(sNauticalTwE),
-                                                    dateAstroTwB = dateFormat.parse(sAstroTwB),
-                                                    dateAstroTwE = dateFormat.parse(sAstroTwE);
-
-                                            sSunrise = hhmmFormat.format(dateSunrise);
-                                            sSunset = hhmmFormat.format(dateSunset);
-                                            sDuskStart = hhmmFormat.format(dateCivilTwB);
-                                            sDuskEnd = hhmmFormat.format(dateCivilTwE);
-                                            sNauticalTwB = hhmmFormat.format(dateNauticalTwB);
-                                            sNauticalTwE = hhmmFormat.format(dateNauticalTwE);
-                                            sAstroTwB = hhmmFormat.format(dateAstroTwB);
-                                            sAstroTwE = hhmmFormat.format(dateAstroTwE);
-
-                                            SharedPreferences.Editor _settingEditor = _settings.edit();
-                                            _settingEditor.putString("sunrise", sSunrise);
-                                            _settingEditor.putString("sunset", sSunset);
-                                            _settingEditor.putString("dusk_start", sDuskStart);
-                                            _settingEditor.putString("dusk_end", sDuskEnd);
-                                            _settingEditor.putString("last_update_date", getCurrentDate());
-
-                                            _settingEditor.apply();
-
-                                            if (isTOAST()) {
-                                                Toast.makeText(AQ.getContext(),
-                                                        R.string.toast_sun_schedule_updated,
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-
-                                            if (txtDay != null && txtDusk != null && txtNight != null) {
-                                                txtDay.setText(
-                                                        AQ.getContext().getString(R.string.time_placeholder,
-                                                                sSunrise, sSunset));
-                                                txtDusk.setText(
-                                                        AQ.getContext().getString(R.string.times_placeholder,
-                                                                sDuskStart, sSunrise, sSunset, sDuskEnd));
-                                                txtNight.setText(
-                                                        AQ.getContext().getString(R.string.time_placeholder,
-                                                                sDuskEnd, sDuskStart));
-                                            }
-
-                                            if (isDEBUG()) {
-                                                Log.d(TAG, "Sunrise: " + sSunrise);
-                                                Log.d(TAG, "Sunset: " + sSunset);
-                                                Log.d(TAG, "Civil twilight begin: " + sDuskStart);
-                                                Log.d(TAG, "Civil twilight end: " + sDuskEnd);
-                                                Log.d(TAG, "Nautical twilight begin: " + sNauticalTwB);
-                                                Log.d(TAG, "Nautical twilight end: " + sNauticalTwE);
-                                                Log.d(TAG, "Astronomical twilight begin: " + sAstroTwB);
-                                                Log.d(TAG, "Astronomical twilight end: " + sAstroTwE);
-                                            }
-                                        } catch (Exception e) {
-                                            if (isDEBUG()) {
-                                                Log.e(TAG, "Time parse error: " + e.getMessage());
-                                            }
-
-                                            if (button != null) {
-                                                button.setProgress(-1);
-                                            }
-                                        }
-
-                                    } catch (Exception e) {
-                                        if (isDEBUG()) {
-                                            Log.e(TAG, "JSON parse error: " + e.getMessage());
-                                        }
-
-                                        if (button != null) {
-                                            button.setProgress(-1);
-                                        }
-                                    }
-
-                                } else {
-                                    if (isDEBUG()) {
-                                        Log.e(TAG, "http://sunrise-sunset.org/ error: " + json.toString());
-                                    }
-
-                                    if (button != null) {
-                                        button.setProgress(-1);
-                                    }
-                                }
-
-                            } else {
-                                if (isDEBUG()) {
-                                    Log.e(TAG, "http://sunrise-sunset.org/ error: "
-                                            + "[URL: " + url + "] [Code: "
-                                            + String.valueOf(status.getCode()) + "]");
-                                }
-
-                                if (button != null) {
-                                    button.setProgress(-1);
-                                }
-
-                                if (isTOAST()) {
-                                    Toast.makeText(AQ.getContext(),
-                                            R.string.toast_network_error,
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }
-                    });
-        } else {
-            if (isDEBUG()) {
-                Log.e(TAG, "Coordinate(s) error: " + "[lat] " + sLat + ", " + "[lon] " + sLon);
-            }
-
+            Intent intent = new Intent(App.ACTION_SCHEDULE_UPDATE);
+            intent.putExtra("sunrise", officialSunrise);
+            intent.putExtra("sunset", officialSunset);
+            intent.putExtra("dusk_start", civilSunrise);
+            intent.putExtra("dusk_end", civilSunset);
+            sendBroadcast(intent);
         }
     }
 
-    public void updateSunriseSunsetSchedule(Context context) {
-        updateSunriseSunsetSchedule(context, null, null, null, null);
+    public boolean hasGpsPermission() {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED;
     }
 
-    public boolean isTimeToUpdateSunSchedule() {
-        boolean result = false;
-        if (_settings.getBoolean("is_sun_schedule_update", true)) {
-            String sLastUpdateDate = _settings.getString("last_update_date", "");
+    public boolean coordinatesInRange(double lat, double lon) {
+        return (lat >= -180 && lat <= 180) && (lon >= -180 && lon <= 180);
+    }
 
-            if (sLastUpdateDate.isEmpty()) {
-                result = true;
-            } else {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
-                try {
-                    Date lastUpdateDate = formatter.parse(sLastUpdateDate);
-                    Calendar calendarLastUpdateDay = Calendar.getInstance();
-                    calendarLastUpdateDay.setTime(lastUpdateDate);
+    private void parseNmea(String nmeaString) {
+        long timestamp = getTimestampFromGPRMC(nmeaString);
+        if (timestamp > 0) {
+            setTime(timestamp / 1000);
+            updateSystemBrightness();
+            stopNmeaListeners();
+        }
+    }
 
-                    Calendar today = Calendar.getInstance();
-
-                    long diff = (today.getTimeInMillis() - calendarLastUpdateDay.getTimeInMillis())
-                            / (24 * 60 * 60 * 1000);
-                    int interval = Integer.parseInt(
-                            _settings.getString("interval_sun_schedule_update", "7"));
-
-                    if (DEBUG) {
-                        Log.d(TAG, "Days from last update sun schedule: " + String.valueOf(diff));
+    private long getTimestampFromGPRMC(String nmeaSentence) {
+        if (nmeaSentence.startsWith("$GPRMC")) {
+            try {
+                String[] nmea = nmeaSentence.split(",");
+                if (nmea.length > 9) {
+                    if (nmea[1].contains(".")) {
+                        nmea[1] = nmea[1].substring(0, nmea[1].indexOf("."));
                     }
 
-                    result = (diff >= interval);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HHmmss", Locale.US);
+                    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("ddMMyy", Locale.US);
+                    TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                    long time = TIME_FORMAT.parse(nmea[1]).getTime();
+                    long date = DATE_FORMAT.parse(nmea[9]).getTime();
+
+                    return (date + time);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        return result;
+        return -1;
+    }
+
+    private void setTime(final long time) {
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes(String.format(Locale.ROOT, "date -u %d;\n", time));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

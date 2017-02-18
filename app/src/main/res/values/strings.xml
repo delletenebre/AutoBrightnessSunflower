@@ -42,18 +42,17 @@
     <string name="pref_description_autostart">Запускать программу при загрузке устройства</string>
 
     <string name="pref_title_autostart_delay">Задержка запуска (сек)</string>
-    <string name="pref_default_autostart_delay">10</string>
+    <string name="pref_default_autostart_delay">3</string>
 
     <string name="pref_title_is_debug">Режим отладки</string>
     <string name="pref_description_is_debug">Включить режим отладки и показывать дополнительные сообщения</string>
 
 
-    <!-- Settings for Sun Sync -->
+    <!-- Settings for GPS Time Sync -->
     <string name="pref_header_sun_sync">Время</string>
 
     <string name="pref_title_interval_sun_schedule_update_delay">Задержка обновления (сек)</string>
     <string name="pref_default_interval_sun_schedule_update_delay">10</string>
-
 
 
     <!-- Settings for Brightness -->
@@ -94,5 +93,5 @@
     </string-array>
 
     <string name="pref_title_gps_update_time">Обновлять время по GPS</string>
-    <string name="pref_description_gps_update_time">Необходим Root</string>
+    <string name="pref_description_gps_update_time">Обновлять системное время при получении $GPRMC записи. Необходим Root.</string>
 </resources>
