@@ -40,7 +40,8 @@ public class App extends Application {
     public static final String ACTION_SCHEDULE_UPDATE = "kg.delletenebre.sunflower.SCHEDULE_UPDATE";
 
 
-    public boolean mDebugState = false;
+    public boolean mDebugEnabled = false;
+    public boolean mDateTimeWasSet = false;
     private SharedPreferences mPrefs;
     private LocationManager mLocationManager;
     private OnNmeaMessageListener mNmeaMessageListener;
@@ -88,11 +89,11 @@ public class App extends Application {
     }
 
     public boolean isDebugEnabled() {
-        return mDebugState;
+        return mDebugEnabled;
     }
 
     public void setDebugEnabled(boolean state) {
-        mDebugState = state;
+        mDebugEnabled = state;
     }
 
     public android.location.Location getLastKnownLocation() {
@@ -119,6 +120,14 @@ public class App extends Application {
         } else if (mNmeaListener != null) {
             mLocationManager.removeNmeaListener(mNmeaListener);
         }
+    }
+
+    public LocationManager getLocationManager() {
+        if (mLocationManager != null && hasGpsPermission()) {
+            return mLocationManager;
+        }
+
+        return null;
     }
 
     public boolean timeInRange(String time, String startTime, String endTime) {
@@ -208,7 +217,7 @@ public class App extends Application {
     public void updateSystemBrightness() {
         updateSunriseSunsetSchedule();
 
-        if (mPrefs.getBoolean("is_app_enabled", true)) {
+        if (mPrefs.getBoolean("control_brightness_enabled", true)) {
             int currentBrightness = getSystemBrightness();
 
             if (currentBrightness > -1) {
@@ -289,48 +298,105 @@ public class App extends Application {
     }
 
     private void parseNmea(String nmeaString) {
-        long timestamp = getTimestampFromGPRMC(nmeaString);
-        if (timestamp > 0) {
-            setTime(timestamp / 1000);
+        String datetime;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            datetime = getDateTimeFromGPRMC(nmeaString);
+        } else {
+            datetime = getTimestampFromGPRMC(nmeaString);
+        }
+        if (datetime != null && !mDateTimeWasSet) {
+            setSystemDateTime(datetime);
             updateSystemBrightness();
             stopNmeaListeners();
         }
     }
 
-    private long getTimestampFromGPRMC(String nmeaSentence) {
+    private String getTimestampFromGPRMC(String nmeaSentence) {
         if (nmeaSentence.startsWith("$GPRMC")) {
             try {
                 String[] nmea = nmeaSentence.split(",");
                 if (nmea.length > 9) {
-                    if (nmea[1].contains(".")) {
-                        nmea[1] = nmea[1].substring(0, nmea[1].indexOf("."));
+
+                    String time = nmea[1];
+                    String date = nmea[9];
+                    String d = date.substring(0, 2);
+                    String m = date.substring(2, 4);
+                    String y = "20" + date.substring(4, 6);
+                    date = d + m + y;
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.US);
+                    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                    long timestamp = sdf.parse(date + time).getTime();
+
+                    if (isDebugEnabled()) {
+                        Log.d("parsed time", String.valueOf(timestamp));
+                        Log.d("parsed date", String.valueOf(sdf.parse(date + time)));
                     }
 
-                    SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HHmmss", Locale.US);
-                    SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("ddMMyy", Locale.US);
-                    TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                    long time = TIME_FORMAT.parse(nmea[1]).getTime();
-                    long date = DATE_FORMAT.parse(nmea[9]).getTime();
-
-                    return (date + time);
+                    return String.valueOf(timestamp / 1000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        return -1;
+        return null;
     }
 
-    private void setTime(final long time) {
+    private String getDateTimeFromGPRMC(String nmeaSentence) {
+        if (nmeaSentence.startsWith("$GPRMC")) {
+            try {
+                String[] nmea = nmeaSentence.split(",");
+                if (nmea.length > 9) {
+                    String time = nmea[1];
+                    String date = nmea[9];
+                    String hs = time.substring(0, 2);
+                    String ms = time.substring(2, 4);
+                    String d = date.substring(0, 2);
+                    String m = date.substring(2, 4);
+                    String y = "20" + date.substring(4, 6);
+
+                    return m + d + hs + ms + y;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    private void setSystemDateTime(String datetime) {
         try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            os.writeBytes(String.format(Locale.ROOT, "date -u %d;\n", time));
+            Process suProcess = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(suProcess.getOutputStream());
+            if (isDebugEnabled()) {
+                Log.d("dt command", "date -u " + datetime);
+            }
+            os.writeBytes("date -u " + datetime + "\n");
+            os.flush();
+            os.close();
+            suProcess.destroy();
+            mDateTimeWasSet = true;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void updateLocation(android.location.Location location) {
+        if (location != null) {
+            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+            prefsEditor.putFloat("lat", (float) location.getLatitude());
+            prefsEditor.putFloat("lon", (float) location.getLongitude());
+            prefsEditor.apply();
+
+            Intent intent = new Intent(ACTION_LOCATION_UPDATE);
+            intent.putExtra("lat", location.getLatitude());
+            intent.putExtra("lon", location.getLongitude());
+            sendBroadcast(intent);
+
+            App.getInstance().updateSystemBrightness();
         }
     }
 }

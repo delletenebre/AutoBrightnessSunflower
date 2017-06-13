@@ -2,7 +2,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <SwitchPreference android:key="control_brightness_enabled"
+        android:defaultValue="true"
+        android:title="@string/pref_title_control_brightness_enabled"
+        android:summary="@string/pref_description_control_brightness_enabled" />
+
     <SwitchPreference android:key="brightness_live_update"
+        android:dependency="control_brightness_enabled"
         android:defaultValue="true"
         android:title="@string/pref_title_brightness_live_update"
         android:summary="@string/pref_description_brightness_live_update" />

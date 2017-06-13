@@ -7,7 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -22,13 +26,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class StartActivity extends AppCompatActivity {
+public class StartActivity extends AppCompatActivity implements LocationListener {
     private final Context mContext = this;
+
+    private static final int PERMISSIONS_REQUEST_LOCATION = 8;
 
     private SharedPreferences mPrefs;
     private App mApp;
     private TextView mTxtCoordinates, mTxtDay, mTxtDusk, mTxtNight;
     private BroadcastReceiver mBroadcastReceiver;
+    private LocationManager mLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,23 +52,15 @@ public class StartActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[] {
                             Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+                            Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSIONS_REQUEST_LOCATION);
         }
 
         mTxtCoordinates = (TextView) findViewById(R.id.textCoordinates);
-        updateCoordinatesUi(mPrefs.getFloat("lat", 181), mPrefs.getFloat("lon", 181));
-
         mTxtDay = (TextView) findViewById(R.id.textDay);
         mTxtDusk = (TextView) findViewById(R.id.textDusk);
         mTxtNight = (TextView) findViewById(R.id.textNight);
 
-        updateSunriseSunsetScheduleUi(
-                mPrefs.getString("sunrise", ""),
-                mPrefs.getString("sunset", ""),
-                mPrefs.getString("dusk_start", ""),
-                mPrefs.getString("dusk_end", ""));
-
-        mApp.updateSystemBrightness();
+        initialize();
 
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -114,17 +113,51 @@ public class StartActivity extends AppCompatActivity {
         });
     }
 
+    private void initialize() {
+        if (mPrefs != null) {
+            float latitude = mPrefs.getFloat("lat", 181);
+            float longitude = mPrefs.getFloat("lon", 181);
+            updateCoordinatesUi(latitude, longitude);
+
+            if (latitude == 181 || longitude == 181) {
+                mLocationManager = App.getInstance().getLocationManager();
+                if (mLocationManager != null) {
+                    //noinspection MissingPermission
+                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+                }
+            }
+
+            updateSunriseSunsetScheduleUi(
+                    mPrefs.getString("sunrise", ""),
+                    mPrefs.getString("sunset", ""),
+                    mPrefs.getString("dusk_start", ""),
+                    mPrefs.getString("dusk_end", ""));
+
+            mApp.updateSystemBrightness();
+        }
+    }
+
     @Override
-    public void onStart() {
-        super.onStart();
-        mApp.setDebugEnabled(mPrefs.getBoolean("is_debug", false));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(App.ACTION_LOCATION_UPDATE));
-        registerReceiver(mBroadcastReceiver, new IntentFilter(App.ACTION_SCHEDULE_UPDATE));
+    public void onResume() {
+        super.onResume();
+
+        if (mApp != null && mPrefs != null) {
+            mApp.setDebugEnabled(mPrefs.getBoolean("is_debug", false));
+        }
+
+        if (mBroadcastReceiver != null) {
+            registerReceiver(mBroadcastReceiver, new IntentFilter(App.ACTION_LOCATION_UPDATE));
+            registerReceiver(mBroadcastReceiver, new IntentFilter(App.ACTION_SCHEDULE_UPDATE));
+        }
     }
 
     @Override
     public void onPause() {
-        unregisterReceiver(mBroadcastReceiver);
+        try {
+            unregisterReceiver(mBroadcastReceiver);
+        } catch (IllegalArgumentException iae) {
+            // not interesting
+        }
 
         super.onPause();
     }
@@ -210,4 +243,25 @@ public class StartActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_LOCATION) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initialize();
+            }
+        }
+    }
+
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            App.getInstance().updateLocation(location);
+            mLocationManager.removeUpdates(this);
+        }
+    }
+    // Required functions
+    public void onProviderDisabled(String arg0) {}
+    public void onProviderEnabled(String arg0) {}
+    public void onStatusChanged(String arg0, int arg1, Bundle arg2) {}
 }

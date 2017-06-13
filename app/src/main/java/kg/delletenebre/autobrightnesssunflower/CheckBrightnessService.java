@@ -3,14 +3,19 @@ package kg.delletenebre.autobrightnesssunflower;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 
-public class CheckBrightnessService extends Service {
+public class CheckBrightnessService extends Service implements LocationListener {
 
     private SharedPreferences mPrefs;
     private Runnable mRunnable;
     private Handler mHandler;
+    private LocationManager mLocationManager;
 
 
     @Override
@@ -28,17 +33,13 @@ public class CheckBrightnessService extends Service {
 
         android.location.Location lastLocation = App.getInstance().getLastKnownLocation();
         if (lastLocation != null) {
-            SharedPreferences.Editor prefsEditor = mPrefs.edit();
-            prefsEditor.putFloat("lat", (float) lastLocation.getLatitude());
-            prefsEditor.putFloat("lon", (float) lastLocation.getLongitude());
-            prefsEditor.apply();
-
-            Intent intent = new Intent(App.ACTION_LOCATION_UPDATE);
-            intent.putExtra("lat", lastLocation.getLatitude());
-            intent.putExtra("lon", lastLocation.getLongitude());
-            sendBroadcast(intent);
-
-            App.getInstance().updateSystemBrightness();
+            App.getInstance().updateLocation(lastLocation);
+        } else {
+            mLocationManager = App.getInstance().getLocationManager();
+            if (mLocationManager != null) {
+                //noinspection MissingPermission
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+            }
         }
     }
 
@@ -50,6 +51,10 @@ public class CheckBrightnessService extends Service {
         mHandler = null;
         mRunnable = null;
         mPrefs = null;
+
+        if (mLocationManager != null) {
+            mLocationManager.removeUpdates(this);
+        }
     }
 
     @Override
@@ -70,8 +75,7 @@ public class CheckBrightnessService extends Service {
     }
 
     private void scheduleNext() {
-        if (mHandler != null && mPrefs.getBoolean("brightness_live_update", true)
-                && mPrefs.getBoolean("is_app_enabled", true)) {
+        if (mHandler != null && mPrefs.getBoolean("brightness_live_update", true)) {
             int delay = Integer.parseInt(
                     mPrefs.getString("brightness_live_update_interval", "10"));
             delay *= 60000;// delay * 60 seconds * 1000 ms
@@ -80,6 +84,17 @@ public class CheckBrightnessService extends Service {
             stopSelf();
         }
     }
+
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            App.getInstance().updateLocation(location);
+            mLocationManager.removeUpdates(this);
+        }
+    }
+    // Required functions
+    public void onProviderDisabled(String arg0) {}
+    public void onProviderEnabled(String arg0) {}
+    public void onStatusChanged(String arg0, int arg1, Bundle arg2) {}
 
 
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.widget.Toast;
 
 public class EventsReceiver extends BroadcastReceiver {
 
@@ -19,13 +18,9 @@ public class EventsReceiver extends BroadcastReceiver {
             final App app = App.getInstance();
             final SharedPreferences prefs = app.getPrefs();
 
-            if (prefs.getBoolean("is_app_enabled", true)) {
-                if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
-                    if (App.getInstance().isDebugEnabled()) {
-                        Toast.makeText(App.getInstance(),
-                                R.string.toast_bootup,
-                                Toast.LENGTH_LONG).show();
-                    }
+            if (prefs.getBoolean("control_brightness_enabled", true)) {
+                if (action.equals(Intent.ACTION_BOOT_COMPLETED) && !prefs.getBoolean("autostart", true)) {
+                    return;
                 }
 
                 int delay = Integer.parseInt(prefs.getString("autostart_delay",

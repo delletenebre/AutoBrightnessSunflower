@@ -1,12 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference android:key="is_app_enabled"
-        android:defaultValue="true"
-        android:title="@string/pref_title_is_app_enabled"
-        android:summary="@string/pref_description_is_app_enabled" />
-
     <SwitchPreference android:key="autostart"
-        android:dependency="is_app_enabled"
         android:defaultValue="true"
         android:title="@string/pref_title_autostart"
         android:summary="@string/pref_description_autostart" />
